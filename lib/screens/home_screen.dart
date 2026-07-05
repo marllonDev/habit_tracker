@@ -9,7 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../providers/water_provider.dart';
-import '../widgets/water_bottle.dart';
+import '../widgets/weekly_chart.dart';
 import '../theme/app_theme.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -59,6 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Container(
@@ -108,22 +109,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                     // Daily Goal Glass Card
                     _buildGoalCard(context, ref, waterGoal, waterAmount),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
-                    // Water Bottle
-                    Expanded(
-                      child: Center(
-                        child: WaterBottle(
-                          currentAmount: waterAmount, 
-                          goal: waterGoal,
-                        ),
-                      ),
+                    // Weekly Chart (Replaces Water Bottle)
+                    const Expanded(
+                      child: WeeklyChart(),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
                     // Add Water Actions
                     Center(child: _buildAddWaterActions(ref)),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),

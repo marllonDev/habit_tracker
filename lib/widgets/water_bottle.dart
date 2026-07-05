@@ -81,19 +81,6 @@ class WaterBottle extends StatelessWidget {
               ),
             ),
           ),
-          Center(
-            child: Text(
-              '${(fillPercentage * 100).toInt()}%',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                shadows: [
-                  Shadow(color: Colors.black45, blurRadius: 15, offset: Offset(0, 4))
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
