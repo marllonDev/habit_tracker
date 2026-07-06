@@ -83,7 +83,7 @@ class WeeklyChart extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               Expanded(
                 child: BarChart(
                   BarChartData(
@@ -133,8 +133,28 @@ class WeeklyChart extends StatelessWidget {
                       leftTitles: const AxisTitles(
                         sideTitles: SideTitles(showTitles: false),
                       ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
+                      topTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 28,
+                          getTitlesWidget: (value, meta) {
+                            if (value.toInt() < 0 || value.toInt() >= safeData.length) {
+                              return const SizedBox.shrink();
+                            }
+                            final amount = safeData[value.toInt()];
+                            if (amount == 0) {
+                              return const SizedBox.shrink();
+                            }
+                            return Text(
+                              amount.toString(),
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       rightTitles: const AxisTitles(
                         sideTitles: SideTitles(showTitles: false),
