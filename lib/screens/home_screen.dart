@@ -314,20 +314,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildAddWaterActions(WidgetRef ref) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _WaterActionButton(
-          amount: 250,
-          onPressed: () => ref.read(waterProvider.notifier).addWater(250),
-        ),
-        _WaterActionButton(
-          amount: 500,
-          onPressed: () => ref.read(waterProvider.notifier).addWater(500),
-        ),
-      ],
+    const amounts = [100, 150, 200, 250, 350];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: amounts.map((amount) => _WaterActionButton(
+        amount: amount,
+        onPressed: () => ref.read(waterProvider.notifier).addWater(amount),
+      )).toList(),
     );
   }
 
@@ -512,31 +505,37 @@ class _WaterActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
-        foregroundColor: AppTheme.primary,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppTheme.primary.withValues(alpha: 0.5)),
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppTheme.primary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4)),
         ),
-        elevation: 0,
-      ),
-      onPressed: onPressed,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const FaIcon(FontAwesomeIcons.bottleWater, color: AppTheme.primary, size: 20),
-          const SizedBox(width: 12),
-          Text(
-            '+$amount ml',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const FaIcon(FontAwesomeIcons.glassWater, color: AppTheme.primary, size: 18),
+            const SizedBox(height: 4),
+            Text(
+              '+$amount',
+              style: const TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
             ),
-          ),
-        ],
+            const Text(
+              'ml',
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontSize: 10,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
