@@ -34,16 +34,19 @@ class WeeklyChart extends StatelessWidget {
       // Calculate display Y ensuring bars are visible even for small/zero amounts
       double displayY = amount.toDouble();
       if (amount == 0) {
-        displayY = goal * 0.02; // Small 2% sliver to ensure fl_chart renders the background rod and allows touch
+        displayY = goal * 0.02; 
       } else if (amount < goal * 0.15) {
-        displayY = goal * 0.15; // Make small values (e.g. 250 out of 2000) distinctly visible at 15% height
+        displayY = goal * 0.15; 
+      } else if (amount > goal) {
+        displayY = goal.toDouble();
       }
       
-      final backgroundToY = goal.toDouble() > amount.toDouble() ? goal.toDouble() : amount.toDouble();
+      final backgroundToY = goal.toDouble();
 
       barGroups.add(
         BarChartGroupData(
           x: 6 - i,
+          showingTooltipIndicators: amount > 0 ? [0] : [],
           barRods: [
             BarChartRodData(
               toY: displayY,
@@ -89,19 +92,22 @@ class WeeklyChart extends StatelessWidget {
                   BarChartData(
                     barGroups: barGroups,
                     alignment: BarChartAlignment.spaceAround,
-                    maxY: goal.toDouble() * 1.5,
+                    maxY: goal.toDouble(),
                     barTouchData: BarTouchData(
-                      enabled: true,
+                      enabled: false,
                       touchTooltipData: BarTouchTooltipData(
+                        getTooltipColor: (group) => Colors.transparent,
+                        tooltipPadding: EdgeInsets.zero,
+                        tooltipMargin: 4,
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          // Retrieve the actual amount from the array to prevent displaying the minimum visibility hacks
                           final actualAmount = safeData[group.x.toInt()];
+                          final verticalStr = actualAmount.toString().split('').join('\n');
                           return BarTooltipItem(
-                            '$actualAmount ml\n',
-                            const TextStyle(
-                              color: Colors.white,
+                            verticalStr,
+                            TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 10,
                             ),
                           );
                         },
@@ -133,28 +139,8 @@ class WeeklyChart extends StatelessWidget {
                       leftTitles: const AxisTitles(
                         sideTitles: SideTitles(showTitles: false),
                       ),
-                      topTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          getTitlesWidget: (value, meta) {
-                            if (value.toInt() < 0 || value.toInt() >= safeData.length) {
-                              return const SizedBox.shrink();
-                            }
-                            final amount = safeData[value.toInt()];
-                            if (amount == 0) {
-                              return const SizedBox.shrink();
-                            }
-                            return Text(
-                              amount.toString(),
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          },
-                        ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
                       ),
                       rightTitles: const AxisTitles(
                         sideTitles: SideTitles(showTitles: false),
