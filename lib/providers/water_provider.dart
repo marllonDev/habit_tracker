@@ -73,4 +73,20 @@ class WaterNotifier extends Notifier<WaterState> {
     await _box?.put('waterInterval', newIntervalMinutes);
     await NotificationService.scheduleWaterReminders(newIntervalMinutes);
   }
+
+  List<int> getWeeklyHistory() {
+    if (_box == null) return List.filled(7, 0);
+    
+    List<int> history = [];
+    final now = DateTime.now();
+    for (int i = 6; i >= 1; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateString = date.toIso8601String().split('T').first;
+      history.add(_box!.get(dateString, defaultValue: 0) as int);
+    }
+    // Add today's amount directly from state for instant UI sync
+    history.add(state.current);
+    
+    return history;
+  }
 }

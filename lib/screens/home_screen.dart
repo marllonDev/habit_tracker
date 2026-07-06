@@ -112,8 +112,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 24),
 
                     // Weekly Chart (Replaces Water Bottle)
-                    const Expanded(
-                      child: WeeklyChart(),
+                    Expanded(
+                      child: WeeklyChart(
+                        weeklyData: ref.read(waterProvider.notifier).getWeeklyHistory(),
+                        goal: waterGoal,
+                      ),
                     ),
                     const SizedBox(height: 24),
 
