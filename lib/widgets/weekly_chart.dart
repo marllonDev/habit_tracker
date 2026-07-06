@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
@@ -18,51 +17,8 @@ class WeeklyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    List<BarChartGroupData> barGroups = [];
-    List<String> days = [];
-    
     // Ensure we have exactly 7 days of data
     final safeData = weeklyData.length == 7 ? weeklyData : List.filled(7, 0);
-
-    for (int i = 6; i >= 0; i--) {
-      final date = now.subtract(Duration(days: i));
-      final amount = safeData[6 - i];
-      
-      final dayName = DateFormat.E('pt_BR').format(date);
-      days.add(dayName.substring(0, 1).toUpperCase() + dayName.substring(1, 3));
-      
-      // Calculate display Y ensuring bars are visible even for small/zero amounts
-      double displayY = amount.toDouble();
-      if (amount == 0) {
-        displayY = goal * 0.02; 
-      } else if (amount < goal * 0.15) {
-        displayY = goal * 0.15; 
-      } else if (amount > goal) {
-        displayY = goal.toDouble();
-      }
-      
-      final backgroundToY = goal.toDouble();
-
-      barGroups.add(
-        BarChartGroupData(
-          x: 6 - i,
-          showingTooltipIndicators: amount > 0 ? [0] : [],
-          barRods: [
-            BarChartRodData(
-              toY: displayY,
-              color: amount >= goal ? AppTheme.accent : AppTheme.primary,
-              width: 16,
-              borderRadius: BorderRadius.circular(4),
-              backDrawRodData: BackgroundBarChartRodData(
-                show: true,
-                toY: backgroundToY,
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
@@ -88,67 +44,86 @@ class WeeklyChart extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: BarChart(
-                  BarChartData(
-                    barGroups: barGroups,
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: goal.toDouble(),
-                    barTouchData: BarTouchData(
-                      enabled: false,
-                      touchTooltipData: BarTouchTooltipData(
-                        getTooltipColor: (group) => Colors.transparent,
-                        tooltipPadding: EdgeInsets.zero,
-                        tooltipMargin: 4,
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          final actualAmount = safeData[group.x.toInt()];
-                          final verticalStr = actualAmount.toString().split('').join('\n');
-                          return BarTooltipItem(
-                            verticalStr,
-                            TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            if (value.toInt() < 0 || value.toInt() >= days.length) {
-                              return const SizedBox.shrink();
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                days[value.toInt()],
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: List.generate(7, (index) {
+                    final i = 6 - index;
+                    final date = now.subtract(Duration(days: i));
+                    final amount = safeData[index];
+                    
+                    final dayName = DateFormat.E('pt_BR').format(date);
+                    final shortDay = dayName.substring(0, 1).toUpperCase() + dayName.substring(1, 3);
+                    
+                    double ratio = amount / goal;
+                    if (ratio > 1.0) ratio = 1.0;
+                    if (amount > 0 && ratio < 0.2) ratio = 0.2; // Minimum height for text
+                    
+                    final verticalStr = amount > 0 ? amount.toString().split('').join('\n') : '';
+
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Stack(
+                                alignment: Alignment.bottomCenter,
+                                children: [
+                                  // Background Bar
+                                  Container(
+                                    width: 36,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  // Colored Filled Bar
+                                  if (amount > 0)
+                                    FractionallySizedBox(
+                                      heightFactor: ratio,
+                                      child: Container(
+                                        width: 36,
+                                        decoration: BoxDecoration(
+                                          color: amount >= goal ? AppTheme.accent : AppTheme.primary,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              verticalStr,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.white.withValues(alpha: 0.9),
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 16,
+                                                height: 1.1,
+                                                letterSpacing: 1,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
-                            );
-                          },
-                          reservedSize: 28,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              shortDay,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    gridData: const FlGridData(show: false),
-                    borderData: FlBorderData(show: false),
-                  ),
+                    );
+                  }),
                 ),
               ),
             ],
