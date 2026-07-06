@@ -37,6 +37,10 @@ Este projeto foi construído focando numa **Interface de Usuário (UI) Premium**
 * **Botões Claros:** Botões com ações destrutivas (como *Zerar Água*) possuem cores levemente avermelhadas; ações positivas (como *+250ml*) possuem identidade visual da marca.
 * Ao clicar numa notificação do sistema, o aplicativo é **aberto automaticamente**.
 
+<p align="center">
+  <img src="assets/print_app.jpeg" alt="Water Tracker Screenshot" width="300"/>
+</p>
+
 ---
 
 ## 🚀 Como Executar o Projeto
