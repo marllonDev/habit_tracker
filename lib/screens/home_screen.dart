@@ -262,7 +262,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       intervalText = 'A cada $currentInterval minutos';
     } else {
       final hours = currentInterval ~/ 60;
-      intervalText = hours == 1 ? 'A cada 1 hora' : 'A cada $hours horas';
+      final mins = currentInterval % 60;
+      if (hours == 1 && mins == 0) {
+        intervalText = 'A cada 1 hora';
+      } else if (hours == 1 && mins > 0) {
+        intervalText = 'A cada 1 hora e $mins min';
+      } else {
+        intervalText = 'A cada $hours horas';
+      }
     }
 
     return _buildGlassCard(
@@ -418,7 +425,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               if (val < 60) {
                 label = '$val minutos';
               } else {
-                label = val == 60 ? '1 hora' : '${val ~/ 60} horas';
+                final hours = val ~/ 60;
+                final mins = val % 60;
+                if (hours == 1 && mins == 0) {
+                  label = '1 hora';
+                } else if (hours == 1 && mins > 0) {
+                  label = '1 hora e $mins min';
+                } else {
+                  label = '$hours horas';
+                }
               }
               
               final isSelected = val == currentInterval;
