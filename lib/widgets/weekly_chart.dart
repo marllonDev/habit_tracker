@@ -31,18 +31,28 @@ class WeeklyChart extends StatelessWidget {
       final dayName = DateFormat.E('pt_BR').format(date);
       days.add(dayName.substring(0, 1).toUpperCase() + dayName.substring(1, 3));
       
+      // Calculate display Y ensuring bars are visible even for small/zero amounts
+      double displayY = amount.toDouble();
+      if (amount == 0) {
+        displayY = goal * 0.02; // Small 2% sliver to ensure fl_chart renders the background rod and allows touch
+      } else if (amount < goal * 0.15) {
+        displayY = goal * 0.15; // Make small values (e.g. 250 out of 2000) distinctly visible at 15% height
+      }
+      
+      final backgroundToY = goal.toDouble() > amount.toDouble() ? goal.toDouble() : amount.toDouble();
+
       barGroups.add(
         BarChartGroupData(
           x: 6 - i,
           barRods: [
             BarChartRodData(
-              toY: amount.toDouble(),
+              toY: displayY,
               color: amount >= goal ? AppTheme.accent : AppTheme.primary,
               width: 16,
               borderRadius: BorderRadius.circular(4),
               backDrawRodData: BackgroundBarChartRodData(
                 show: true,
-                toY: goal.toDouble() > amount.toDouble() ? goal.toDouble() : amount.toDouble(),
+                toY: backgroundToY,
                 color: Colors.white.withValues(alpha: 0.1),
               ),
             ),
@@ -77,14 +87,17 @@ class WeeklyChart extends StatelessWidget {
               Expanded(
                 child: BarChart(
                   BarChartData(
+                    barGroups: barGroups,
                     alignment: BarChartAlignment.spaceAround,
                     maxY: goal.toDouble() * 1.5,
                     barTouchData: BarTouchData(
                       enabled: true,
                       touchTooltipData: BarTouchTooltipData(
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          // Retrieve the actual amount from the array to prevent displaying the minimum visibility hacks
+                          final actualAmount = safeData[group.x.toInt()];
                           return BarTooltipItem(
-                            '${rod.toY.toInt()} ml\n',
+                            '$actualAmount ml\n',
                             const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
